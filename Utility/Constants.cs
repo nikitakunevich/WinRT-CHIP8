@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CHIP8_VM.Utilities
+namespace CHIP8_VM.Utility
 {
-    public class Codes
+    public static class Constants
     {
-        byte chip8_fontset[80] =
+        public static byte[] chip8_fontset =
         { 
           0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
           0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -28,4 +25,5 @@ namespace CHIP8_VM.Utilities
           0xF0, 0x80, 0xF0, 0x80, 0x80  // F
         };
     }
+
 }

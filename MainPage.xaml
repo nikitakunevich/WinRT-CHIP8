@@ -5,33 +5,38 @@
     xmlns:local="using:CHIP8_VM"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:cn="using:System.Windows.Controls"
-    xmlns:canvas="using:Microsoft.Graphics.Canvas"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    
-    <!--Page.BottomAppBar>
-        <CommandBar>
-            
+
+    <Page.BottomAppBar>
+        <CommandBar x:Name="appBar">
         </CommandBar>
-    </Page.BottomAppBar-->
+    </Page.BottomAppBar>
+    <Page.Resources>
+        <DataTemplate x:Key="headerTemplate">
+            <TextBlock Text="{Binding}" FontSize="20"/>
+        </DataTemplate>
+    </Page.Resources>
     
-        <!--Grid.RowDefinitions>
+    <Grid>
+
+        <StackPanel  Margin=" 12 12 0 0">
+            <TextBlock x:Name="titleLabel" Text="CHIP8" FontSize="24"/>
+            <ComboBox x:Name="gameList" HeaderTemplate="{StaticResource headerTemplate}" Header="choose game" SelectionChanged="gameList_SelectionChanged"/>
+            <StackPanel Margin="0 80 0 0">
+                    <Button x:Name="playBtn" Content="play" Width="250" HorizontalAlignment="Center" Click="playBtn_Click"/>
+                    <Button x:Name="disasmBtn" Content="disassemble" Width="250" HorizontalAlignment="Center" Click="disasmBtn_Click"/>
+            </StackPanel>
+        </StackPanel>
+
+    </Grid>
+    <!--Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions-->
-        <Pivot x:Name="MainPivot" Title="CHIP8">
-            <PivotItem Header="disassembly">
-                <TextBlock x:Name="disasmText" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-            </PivotItem>
-            <PivotItem Header="game">
-                <Border BorderBrush="Black" BorderThickness="5" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10,10,10,10">
-                    <canvas:CanvasControl Name="canvas" Draw="CanvasControl_Draw" Width="512" Height="256"/>
-                </Border>
-            </PivotItem>
-        </Pivot>
 
-        <!--StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+
+    <!--StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Name="okButton" Content="OK" Margin="10, 0, 10, 0"/>
             <Button Name="exitButton" Content="Exit" Margin="10, 0, 10, 0"/>
         </StackPanel-->

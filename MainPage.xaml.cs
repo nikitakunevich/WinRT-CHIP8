@@ -19,6 +19,9 @@ using Windows.Graphics.Display;
 using Windows.UI.ViewManagement;
 using Microsoft.Graphics.Canvas;
 using Windows.Storage;
+using Windows.UI.Notifications;
+using CHIP8_VM.Common;
+using System.Diagnostics;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
@@ -31,10 +34,22 @@ namespace CHIP8_VM
     public sealed partial class MainPage : Page
     {
 
+        //private string[] games = { "BLINKY.ch8", "MAZE.ch8", "PONG.ch8" };
+        NavigationHelper navHelper;
         public MainPage()
         {
             this.InitializeComponent();
+            this.navHelper = new NavigationHelper(this);
+            this.navHelper.LoadState += NavHelper_LoadState;
+            this.navHelper.SaveState += NavHelper_SaveState;
         }
+
+        private async void NavHelper_SaveState(object sender, SaveStateEventArgs e)
+        { }
+
+        private async void NavHelper_LoadState(object sender, LoadStateEventArgs e)
+        { }
+
 
         /// <summary>
         /// Invoked when this page is about to be displayed in a Frame.
@@ -50,37 +65,53 @@ namespace CHIP8_VM
             // Windows.Phone.UI.Input.HardwareButtons.BackPressed event.
             // If you are using the NavigationHelper provided by some templates,
             // this event is handled for you.
-
             DisplayInformation.AutoRotationPreferences = DisplayOrientations.Landscape | DisplayOrientations.Portrait;
             StatusBar stBar = StatusBar.GetForCurrentView();
             stBar.HideAsync().AsTask().Wait();
+            
+            var instFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+            var gamefld = instFolder.GetFolderAsync("Games").AsTask().Result;
+            var gameFileList = gamefld.GetFilesAsync().AsTask().Result.Select((fl) => fl.Name).ToList();
+            //fill combobox with games
+            gameList.ItemsSource = gameFileList;
+            gameList.SelectedItem = gameFileList[0];
 
-            /*
-            Utility.Disassembly dsm = new Utility.Disassembly();
-            var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
-            folder = folder.GetFolderAsync("Games").AsTask().Result;
-            var file = folder.GetFileAsync("BRIX.ch8").AsTask().Result;
-            var stream = dsm.Disassemble(file.OpenReadAsync().AsTask().Result.AsStreamForRead());
-            byte[] test = new byte[11];
-            byte[] buf = new byte[8096];
-            int unreadBytesCount = buf.Length;
-            stream.Read(buf, 0, buf.Length);
-            disasmText.Text = System.Text.UTF8Encoding.UTF8.GetString(buf, 0, buf.Length);*/
+
+            navHelper.OnNavigatedTo(e);
         }
 
-        private void CanvasControl_Draw(Microsoft.Graphics.Canvas.CanvasControl sender, Microsoft.Graphics.Canvas.CanvasDrawEventArgs args)
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            var session = args.DrawingSession;
-            var rnd = new Random();
-            var clrs = new Color[]{Colors.Black, Colors.White};
-            for (int i = 0; i < 64; i++)
+            navHelper.OnNavigatedFrom(e);
+        }
+
+        private async void disasmBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.chosenProgram == null)
             {
-                for (int j = 0; j < 32; j++)
-                {
-                    session.FillRectangle(i * 8, j * 8, 8, 8, clrs[(int)Math.Round(rnd.NextDouble())]);
-                }
+                var mes = new Windows.UI.Popups.MessageDialog("Program is not selected");
+                await mes.ShowAsync();
             }
-            sender.Invalidate();
+            else
+                Frame.Navigate(typeof(DisasmPage));
+        }
+
+        private void gameList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            App.chosenProgram = (string)e.AddedItems.First();
+        }
+
+        private async void playBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.chosenProgram == null)
+            {
+                var mes  = new Windows.UI.Popups.MessageDialog("Program is not selected");
+                await mes.ShowAsync();
+            }
+            else
+            {
+                Frame.Navigate(typeof(GamePage));
+            }
         }
     }
 }

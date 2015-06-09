@@ -57,6 +57,7 @@ namespace CHIP8_VM.Utility
         {
             return value.code;
         }
+
         public override string ToString()
         {
             return code.ToString();
@@ -75,32 +76,26 @@ namespace CHIP8_VM.Utility
 
     public class Disassembly
     {
-        public Stream Disassemble(Stream stream)
+        public static Stream Disassemble(Stream stream)
         {
             List<byte> binData = new List<byte>();
-            byte[] buf = new byte[4096];
-            int leftUnread = (int)stream.Length;
-            for(int i = 0; i < leftUnread; i += 4096)
-            {
-                stream.Read(buf, i, buf.Length);
-                binData.AddRange(buf);
-            }
-            int a = 3;
-            a.ToString();
+
+            int leftToRead = (int)stream.Length;
+            var buf = new byte[leftToRead];
+            stream.ReadStreamToBuf(buf, 0, 0);
+            binData.AddRange(buf);
+
             List<string> asmCmds = new List<string>();
             for(int i = 0; i < binData.Count; i+=2)
             {
-                OpCode opcode = BitConverter.ToUInt16(binData.ToArray(), i);
+                //TODO: check
+                OpCode opcode = Helpers.ToOpCodeBigEndian(binData.ToArray(), i);
+                //BitConverter.ToUInt16({ code[1],code[0]}/*code.Reverse().ToArray()*/, 0);
                 asmCmds.Add(GetDisasmString(opcode) + "\n");
             }
-            /*byte[] asmOutput = asmCmds.to
-            MemoryStream mstream = new MemoryStream();
-            mstream.Write()*/
             MemoryStream ms = new MemoryStream();
             foreach (var cmd in asmCmds)
             {
-                //byte[] tempBuf = new byte[cmd.Length * sizeof(char)];
-                //Buffer.BlockCopy(cmd.ToArray(), 0, tempBuf, 0, tempBuf.Length);
                 byte[] tempBuf = UTF8Encoding.UTF8.GetBytes(cmd);
                 ms.Write(tempBuf, 0, tempBuf.Length);
             }
@@ -108,8 +103,17 @@ namespace CHIP8_VM.Utility
             return ms;
         }
                 
-                
-        string GetDisasmString(OpCode opcode)
+        public static string DisassembleToText(Stream stream)
+        {
+            var outStream = Disassemble(stream);
+
+            int leftToRead = (int)outStream.Length;
+            byte[] buffer = new byte[leftToRead];
+            outStream.ReadStreamToBuf(buffer, 0, leftToRead);
+            return UTF8Encoding.UTF8.GetString(buffer, 0, leftToRead);
+        }
+
+        static string GetDisasmString(OpCode opcode)
         {
             switch (opcode & 0xf000)
             {
@@ -240,14 +244,5 @@ namespace CHIP8_VM.Utility
                     return opcode.ToString();
             }
         }
-
-
-
-
-
-        /*private Task<int> GetStreamAsync(Stream stream)
-        {
-            return await stream.ReadAsync();
-        }*/
     }
 }

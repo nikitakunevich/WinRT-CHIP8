@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CHIP8_VM.Utility;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,8 +26,9 @@ namespace CHIP8_VM
     /// </summary>
     public sealed partial class App : Application
     {
-        private TransitionCollection transitions;
 
+        private TransitionCollection transitions;
+        public static string chosenProgram;
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
